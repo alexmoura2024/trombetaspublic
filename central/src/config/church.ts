@@ -1,6 +1,6 @@
 export const churchConfig = {
-  name: "Igreja Cristã Maranata",
-  unit: "ICM Treze de Maio",
+  name: "IGREJA CRISTÃ MARANATA",
+  unit: "ICM CENTRAL 2",
   event: "Trombetas & Festas 2024",
   formTitle: "Cadastro de Visitantes"
 };

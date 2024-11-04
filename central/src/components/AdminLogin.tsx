@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password === '@@4438Mur') {
+    if (password === '@@Maranata') {
       sessionStorage.setItem('isAdmin', 'true');
       navigate('/admin/dashboard');
     } else {

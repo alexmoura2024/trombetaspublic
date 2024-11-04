@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Registration } from '../types';
-import { Download, Edit2, Save, Trash2, LogOut } from 'lucide-react';
+import { Download, Edit2, Save, Trash2, LogOut, Heart } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { generatePDF, generateMissingMembersPDF } from '../utils/pdfGenerator';
+import { generatePDF, generateMissingMembersPDF, generatePrayerListPDF } from '../utils/pdfGenerator';
 import { members } from '../data/members';
 import BackButton from './BackButton';
 
@@ -16,15 +16,20 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   const fetchRegistrations = async () => {
-    const querySnapshot = await getDocs(collection(db, 'registrations'));
-    const data = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as (Registration & { id: string })[];
-    
-    setRegistrations(data.sort((a, b) => 
-      b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime()
-    ));
+    try {
+      const querySnapshot = await getDocs(collection(db, 'registrations'));
+      const data = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as (Registration & { id: string })[];
+      
+      setRegistrations(data.sort((a, b) => 
+        b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime()
+      ));
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+      toast.error('Erro ao carregar os registros');
+    }
   };
 
   useEffect(() => {
@@ -73,6 +78,14 @@ export default function AdminDashboard() {
       : registrations.filter(r => r.assistanceGroup === selectedGroup);
     
     generatePDF(filteredData, selectedGroup);
+  };
+
+  const handleGeneratePrayerList = () => {
+    const filteredData = selectedGroup === 'all'
+      ? registrations
+      : registrations.filter(r => r.assistanceGroup === selectedGroup);
+    
+    generatePrayerListPDF(filteredData, selectedGroup);
   };
 
   const handleGenerateMissingReport = () => {
@@ -132,6 +145,14 @@ export default function AdminDashboard() {
             >
               <Download size={20} />
               Relatório de Visitantes
+            </button>
+
+            <button
+              onClick={handleGeneratePrayerList}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            >
+              <Heart size={20} />
+              Lista de Oração
             </button>
 
             <button
